@@ -1,5 +1,6 @@
 import sqlite3
 from datetime import datetime
+import os
 
 import click
 from flask import current_app, g
@@ -28,6 +29,16 @@ def init_db():
 
     with current_app.open_resource('schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
+
+    dump_folder = os.path.join(current_app.root_path, 'db_dumps')
+    if os.path.exists(dump_folder):
+        for dump_file in sorted(os.listdir(dump_folder)):
+            if dump_file.endswith(".sql"):
+                path = os.path.join(dump_folder, dump_file)
+                with open(path, 'r', encoding='utf-8') as f:
+                    db.executescript(f.read())
+
+    db.commit()
 
 
 @click.command('init-db')
