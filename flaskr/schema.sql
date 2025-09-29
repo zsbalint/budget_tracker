@@ -10,7 +10,7 @@ DROP TABLE IF EXISTS TransactionRules;
 CREATE TABLE Users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
+    password TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
