@@ -13,86 +13,21 @@ bp = Blueprint('main_page', __name__)
 @login_required
 def index():
     db = get_db()
-    posts = [({'title': "egy", 'username': "kettő", 'created': '2025-09-15', 'body': "te gháááchi"}), ({'title': "lófasz", 'username': "jóska", 'created': '2025-09-29'})]
-    return render_template('blog/index.html', posts=posts)
+    # TODO: populate the dropdown with data
+    year_dropdown_items = ['2022', '2023', '2024', '2025']
+    month_dropdown_items = ['1','2','3','4','5','6','7','8','9','10','11','12']
+    monthly_data = db.execute(
+        'SELECT * FROM Transactions t JOIN Users u ON t.user_id = u.id'
+    ).fetchall()
+    return render_template('expenses/index.html', years=year_dropdown_items, months=month_dropdown_items)
 
 
-@bp.route('/create', methods=('GET', 'POST'))
-@login_required
-def create():
-    if request.method == 'POST':
-        title = request.form['title']
-        body = request.form['body']
-        error = None
-
-        if not title:
-            error = 'Title is required.'
-
-        if error is not None:
-            flash(error)
-        else:
-            db = get_db()
-            db.execute(
-                'INSERT INTO post (title, body, author_id)'
-                ' VALUES (?, ?, ?)',
-                (title, body, g.user['id'])
-            )
-            db.commit()
-            return redirect(url_for('blog.index'))
-
-    return render_template('blog/create.html')
-
-
-def get_post(id, check_author=True):
-    post = get_db().execute(
-        'SELECT p.id, title, body, created, author_id, username'
-        ' FROM post p JOIN user u ON p.author_id = u.id'
-        ' WHERE p.id = ?',
-        (id,)
-    ).fetchone()
-
-    if post is None:
-        abort(404, f"Post id {id} doesn't exist.")
-
-    if check_author and post['author_id'] != g.user['id']:
-        abort(403)
-
-    return post
-
-
-@bp.route('/<int:id>/update', methods=('GET', 'POST'))
-@login_required
-def update(id):
-    post = get_post(id)
-
-    if request.method == 'POST':
-        title = request.form['title']
-        body = request.form['body']
-        error = None
-
-        if not title:
-            error = 'Title is required.'
-
-        if error is not None:
-            flash(error)
-        else:
-            db = get_db()
-            db.execute(
-                'UPDATE post SET title = ?, body = ?'
-                ' WHERE id = ?',
-                (title, body, id)
-            )
-            db.commit()
-            return redirect(url_for('blog.index'))
-
-    return render_template('blog/update.html', post=post)
-
-
-@bp.route('/<int:id>/delete', methods=('POST',))
-@login_required
-def delete(id):
-    get_post(id)
-    db = get_db()
-    db.execute('DELETE FROM post WHERE id = ?', (id,))
-    db.commit()
-    return redirect(url_for('blog.index'))
+@bp.route('/submit', methods=['POST'])
+def submit():
+    year_chosen = request.form.get("year_dropdown")
+    month_chosen = request.form.get("month_dropdown")
+    if (year_chosen == '2025' and month_chosen == '9'):
+        flash("GÁCHI")
+        pass
+    else: 
+        return 'GÁCHI'

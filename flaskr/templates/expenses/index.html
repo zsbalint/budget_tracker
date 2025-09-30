@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}My expenses{% endblock %}</h1>
+  {% block header_dropdowns %}
+    <div class="dropdowns">
+      <form method="POST" action="/submit">
+        <label for="year">YEAR</label>
+        <select id="year" name="year_dropdown">
+          {% for year in years %}
+            <option value="{{ year }}">{{ year }}</option>
+          {% endfor %}
+        </select>
+
+        <label for="month">MONTH</label>
+        <select id="month" name="month_dropdown">
+          {% for month in months %}
+            <option value="{{ month }}">{{ month }}</option>
+          {% endfor %}
+        </select>
+
+        <button type="submit">Go</button>
+      </form>
+    </div>
+  {% endblock %}
+{% endblock %}
+
+{% block content %}
+
+{% endblock %}
