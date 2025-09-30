@@ -1,30 +1,28 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block header %}
-  <h1>{% block title %}My expenses{% endblock %}</h1>
-  {% block header_dropdowns %}
-    <div class="dropdowns">
-      <form method="POST" action="/submit">
-        <label for="year">YEAR</label>
-        <select id="year" name="year_dropdown">
-          {% for year in years %}
-            <option value="{{ year }}">{{ year }}</option>
-          {% endfor %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h2>Welcome to the Home Page</h2>
+
+<!-- Dropdowns in content block -->
+<div class="dropdowns">
+    <form class="dropdown-form" method="POST" action="{{ url_for('main.submit') }}">
+        <label for="year_dropdown">YEAR:</label>
+        <select name="year_dropdown" id="year_dropdown">
+            {% for year in years %}
+                <option value="{{ year }}">{{ year }}</option>
+            {% endfor %}
         </select>
 
-        <label for="month">MONTH</label>
-        <select id="month" name="month_dropdown">
-          {% for month in months %}
-            <option value="{{ month }}">{{ month }}</option>
-          {% endfor %}
+        <label for="month_dropdown">MONTH:</label>
+        <select name="month_dropdown" id="month_dropdown">
+            {% for month in months %}
+                <option value="{{ month }}">{{ month }}</option>
+            {% endfor %}
         </select>
 
         <button type="submit">Go</button>
-      </form>
-    </div>
-  {% endblock %}
-{% endblock %}
-
-{% block content %}
-
+    </form>
+</div>
 {% endblock %}

@@ -1,15 +1,18 @@
 import os
-
+from .config import Config
 from flask import Flask
 
 
 def create_app(test_config=None):
+    MAX_FILE_SIZE_MB = 16
+
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    app.config.from_mapping(
-        SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
-    )
+    app.config.from_object(Config)
+
+    # ensure instance and uploads folders exist
+    os.makedirs(os.path.dirname(app.config['DATABASE']), exist_ok=True)
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -17,12 +20,6 @@ def create_app(test_config=None):
     else:
         # load the test config if passed in
         app.config.from_mapping(test_config)
-
-    # ensure the instance folder exists
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
 
     # a simple page that says hello
     @app.route('/hello')
@@ -35,8 +32,11 @@ def create_app(test_config=None):
     from . import auth
     app.register_blueprint(auth.bp)
 
-    from . import main_page
-    app.register_blueprint(main_page.bp)
-    app.add_url_rule('/', endpoint='index')
+    from . import routes
+    app.register_blueprint(routes.bp)  
+    # app.add_url_rule('/', endpoint='index')
+    # app.add_url_rule('/upload', endpoint='upload')
+    # app.add_url_rule('/submit', endpoint='submit')
+    # app.add_url_rule('/page2', endpoint='page2')
 
     return app

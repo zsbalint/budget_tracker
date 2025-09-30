@@ -1,30 +1,113 @@
-html { font-family: sans-serif; background: #eee; padding: 1rem; }
-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; }
-body { max-width: 960px; margin: 0 auto; background: white; }
-h1 { font-family: serif; color: #377ba8; margin: 1rem 0; }
-a { color: #377ba8; }
-hr { border: none; border-top: 1px solid lightgray; }
-nav { background: lightgray; display: flex; align-items: center; padding: 0 0.5rem; }
-nav h1 { flex: auto; margin: 0; }
-nav h1 a { text-decoration: none; padding: 0.25rem 0.5rem; }
-nav ul  { display: flex; list-style: none; margin: 0; padding: 0; }
-nav ul li a, nav ul li span, header .action { display: block; padding: 0.5rem; }
-.content { padding: 0 1rem 1rem; }
-.content > header { border-bottom: 1px solid lightgray; display: flex; align-items: flex-end; }
-.content > header h1 { flex: auto; margin: 1rem 0 0.25rem 0; }
-.dropdowns form { display: flex; flex-direction: row; gap: 20px; align-items: center; }
-.dropdowns form > label {display: flex; align-items: center; margin: 0; font-weight: bold; }
-.dropdowns select { padding: 5px; font-size: 14px; width: 150px; }
-.dropdowns button { padding: 6px 12px; font-size: 14px; }
-.flash { margin: 1em 0; padding: 1em; background: #cae6f6; border: 1px solid #377ba8; }
-.post > header { display: flex; align-items: flex-end; font-size: 0.85em; }
-.post > header > div:first-of-type { flex: auto; }
-.post > header h1 { font-size: 1.5em; margin-bottom: 0; }
-.post .about { color: slategray; font-style: italic; }
-.post .body { white-space: pre-line; }
-.content:last-child { margin-bottom: 0; }
-.content label { font-weight: bold; margin-bottom: 0.5em; }
-.content input, .content textarea { margin-bottom: 1em; }
-.content textarea { min-height: 12em; resize: vertical; }
-input.danger { color: #cc2f2e; }
-input[type=submit] { align-self: start; min-width: 10em; }
+/* ------------------- Reset & body ------------------- */
+html {
+    font-family: sans-serif;
+    background: #eee;
+    padding: 1rem;
+}
+
+body {
+    margin: 0;
+}
+
+/* ------------------- Top nav ------------------- */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: #f2f2f2;
+}
+
+nav h1 a {
+    text-decoration: none;
+    color: #377ba8;
+}
+
+nav .user-info span,
+nav .user-info a {
+    margin-left: 10px;
+}
+
+/* ------------------- Page body ------------------- */
+.page-body {
+    display: flex;
+    width: 100%;
+    min-height: calc(100vh - 60px);
+}
+
+/* ------------------- Side menu ------------------- */
+.side-menu {
+    width: 200px;
+    background: #eee;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.side-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.side-menu li {
+    margin-bottom: 10px;
+}
+
+.side-menu a {
+    text-decoration: none;
+    color: #377ba8;
+    font-weight: bold;
+}
+
+/* ------------------- Main content ------------------- */
+.content {
+    flex: 1;
+    padding: 20px;
+    background: #fff;
+}
+
+/* ------------------- Dropdown form (horizontal) ------------------- */
+.dropdown-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dropdown-form label {
+    margin: 0 5px 0 0;
+}
+
+.dropdown-form select,
+.dropdown-form button {
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+/* ------------------- Upload form (vertical) ------------------- */
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 400px;
+}
+
+.upload-form input[type="file"] {
+    padding: 5px;
+}
+
+.upload-form button {
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* ------------------- Flash messages ------------------- */
+.flash-messages {
+    list-style: none;
+    padding: 10px;
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}

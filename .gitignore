@@ -3,6 +3,7 @@
 flaskr/__pycache__/
 __pycache__/
 instance/
+uploads/
 
 .pytest_cache/
 .coverage

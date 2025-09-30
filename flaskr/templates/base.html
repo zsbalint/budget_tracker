@@ -1,24 +1,50 @@
-<!doctype html>
-<title>{% block title %}{% endblock %} - Budget tracker</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<nav>
-  <h1>Budget tracker</h1>
-  <ul>
-    {% if g.user %}
-      <li><span>{{ g.user['username'] }}</span>
-      <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
-    {% else %}
-      {# <li><a href="{{ url_for('auth.register') }}">Register</a> #}
-      <li><a href="{{ url_for('auth.login') }}">Log In</a>
-    {% endif %}
-  </ul>
-</nav>
-<section class="content">
-  <header>
-    {% block header %}{% endblock %}
-  </header>
-  {% for message in get_flashed_messages() %}
-    <div class="flash">{{ message }}</div>
-  {% endfor %}
-  {% block content %}{% endblock %}
-</section>
+<!DOCTYPE html>
+<html lang="en">
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class="flash-messages">
+      {% for msg in messages %}
+        <li>{{ msg }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Flask Site{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Top nav -->
+    <nav>
+        <h1><a href="{{ url_for('main.index') }}">Expense tracker</a></h1>
+
+        <!-- User info -->
+        <div class="user-info">
+            {% if g.user %}
+                <span>{{ g.user['username'] }}</span>
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Page body: menu + content -->
+    <div class="page-body">
+        <!-- Left-side menu -->
+        <aside class="side-menu">
+            <ul>
+                <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                <li><a href="{{ url_for('main.upload') }}">Upload expense file</a></li>
+                <li><a href="{{ url_for('main.page2') }}">Page 2</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main content -->
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>
