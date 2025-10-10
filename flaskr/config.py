@@ -9,7 +9,7 @@ UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev_secret")
-    ALLOWED_EXTENSIONS = {'csv', 'xls', 'xlsx'}
+    ALLOWED_EXTENSIONS = {'csv', 'xls', 'xlsx', 'ods'}
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB
 
     # paths

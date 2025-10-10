@@ -1,0 +1,167 @@
+<!-- templates/spreadsheet.html -->
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Spreadsheet view</title>
+  <style>
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 6px; }
+    th { background:#f6f6f6; text-align: left; }
+    input[type="text"], select { width: 100%; box-sizing: border-box; }
+    .small-btn { padding:4px 8px; }
+  </style>
+</head>
+<body>
+  <h2>Preview / edit: {{ filename }}</h2>
+
+  <form id="gridForm" method="post" action="{{ url_for('main.save_grid') }}">
+    <input type="hidden" name="filename" value="{{ filename }}">
+    <input type="hidden" name="rows_json" id="rows_json">
+
+    <table id="grid">
+      <thead>
+        <tr>
+          {% for col in columns %}
+            <th>{{ col }}</th>
+          {% endfor %}
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr data-index="{{ loop.index0 }}">
+            {% for col in columns %}
+              <td>
+                {% set v = row[col] %}
+                {% if col_types[col] == 'checkbox' %}
+                  <input class="cell" data-col="{{col}}" type="checkbox" {% if v %}checked{% endif %}>
+                {% elif col_types[col] == 'select' %}
+                  <select class="cell" data-col="{{col}}">
+                    <option value=""></option>
+                    {% for c in categories %}
+                      <option value="{{ c }}" {% if c == v %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                  </select>
+                {% elif col_types[col] == 'number' %}
+                  <input class="cell" data-col="{{col}}" type="number" value="{{ v }}">
+                {% elif col_types[col] == 'date' %}
+                  <input class="cell" data-col="{{col}}" type="date" value="{{ v }}">
+                {% else %}
+                  <input class="cell" data-col="{{col}}" type="text" value="{{ v }}">
+                {% endif %}
+              </td>
+            {% endfor %}
+            <td>
+              <button type="button" class="row-categorize small-btn">Categorize</button>
+              <button type="button" class="row-delete small-btn">Delete</button>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <p>
+      <button type="button" id="addRow" class="small-btn">Add row</button>
+      <button type="submit" id="saveBtn" class="small-btn">Save changes</button>
+    </p>
+  </form>
+
+<script>
+/* Helper to read a row <tr> into an object using .cell elements */
+function readRow(tr, columns) {
+  const obj = {};
+  columns.forEach(col => {
+    const el = tr.querySelector('[data-col="' + col + '"]');
+    if (!el) { obj[col] = ''; return; }
+    if (el.type === 'checkbox') obj[col] = el.checked;
+    else obj[col] = el.value;
+  });
+  return obj;
+}
+
+/* Serialize table into array of objects */
+function serializeGrid() {
+  const columns = {{ columns|tojson }};
+  const rows = [];
+  document.querySelectorAll('#grid tbody tr').forEach(tr => {
+    rows.push(readRow(tr, columns));
+  });
+  return rows;
+}
+
+/* Submit handler: fill rows_json with pretty JSON */
+document.getElementById('gridForm').addEventListener('submit', function(e) {
+  const data = serializeGrid();
+  document.getElementById('rows_json').value = JSON.stringify(data, null, 2); // pretty
+  // allow normal submit
+});
+
+/* Add row: clone last row (if none exist, create a fresh tr) */
+document.getElementById('addRow').addEventListener('click', function() {
+  const tbody = document.querySelector('#grid tbody');
+  const last = tbody.querySelector('tr:last-child');
+  let newTr;
+  if (last) {
+    newTr = last.cloneNode(true);
+    // clear values
+    newTr.querySelectorAll('.cell').forEach(el => {
+      if (el.type === 'checkbox') el.checked = false;
+      else el.value = '';
+    });
+  } else {
+    // build a minimal empty row if table was empty
+    newTr = document.createElement('tr');
+    const columns = {{ columns|tojson }};
+    columns.forEach(col => {
+      const td = document.createElement('td');
+      const input = document.createElement('input');
+      input.className = 'cell';
+      input.setAttribute('data-col', col);
+      input.type = 'text';
+      td.appendChild(input);
+      newTr.appendChild(td);
+    });
+    const tdActions = document.createElement('td');
+    tdActions.innerHTML = '<button type="button" class="row-categorize small-btn">Categorize</button> <button type="button" class="row-delete small-btn">Delete</button>';
+    newTr.appendChild(tdActions);
+  }
+  tbody.appendChild(newTr);
+});
+
+/* Delete row */
+document.querySelector('#grid').addEventListener('click', function(e) {
+  if (e.target.matches('.row-delete')) {
+    const tr = e.target.closest('tr');
+    tr.remove();
+  }
+});
+
+/* Per-row categorize button: calls server API and updates 'category' select (if present) */
+document.querySelector('#grid').addEventListener('click', async function(e) {
+  if (e.target.matches('.row-categorize')) {
+    const tr = e.target.closest('tr');
+    // collect columns and the row's data (you can tailor which field you send)
+    const columns = {{ columns|tojson }};
+    const rowObj = readRow(tr, columns);
+
+    // call your categorize API
+    try {
+      const resp = await fetch('{{ url_for("main.api_categorize_row") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(rowObj)
+      });
+      const result = await resp.json(); // expect { category: '...' }
+      // update category cell if there is a select with data-col 'category'
+      const sel = tr.querySelector('[data-col="category"]');
+      if (sel) sel.value = result.category || '';
+    } catch (err) {
+      console.error('categorize failed', err);
+    }
+  }
+});
+</script>
+
+</body>
+</html>

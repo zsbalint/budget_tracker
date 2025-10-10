@@ -1,11 +1,15 @@
+import os
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, current_app
+    Blueprint, flash, g, redirect, render_template, request, url_for, current_app, jsonify, Response
 )
+import json
+
 from werkzeug.exceptions import abort
 
 from flaskr.auth import login_required
 from flaskr.db import get_db
-from .helpers import allowed_file, save_file
+from flaskr.helpers import allowed_file, save_file
+from flaskr.file_processing import process_transactions
 
 bp = Blueprint('main', __name__)
 
@@ -40,7 +44,7 @@ def upload():
         if file and allowed_file(file.filename):
             filename = save_file(file)
             flash(f'File {filename} uploaded successfully!')
-            return redirect(url_for('main.upload'))
+            return redirect(url_for('main.process_upload', filename=filename))
         else:
             flash('Invalid file type! Allowed types: ' + ', '.join(current_app.config['ALLOWED_EXTENSIONS']))
             return redirect(request.url)
@@ -60,3 +64,23 @@ def submit():
     year_chosen = request.form.get("year_dropdown")
     month_chosen = request.form.get("month_dropdown")
     return 'GÁCHI'
+
+
+@bp.route('/process', methods=['GET', 'POST'])
+@login_required
+def process_upload():
+    filename = request.args.get('filename')
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+    columns, rows, col_types, categories = process_transactions(filepath)
+    return render_template('spreadsheet_transactions.html', columns=columns, rows=rows, col_types=col_types, categories=categories, filename=filename)
+
+
+@bp.route('/save_grid', methods=['POST'])
+@login_required
+def save_grid():
+    return "jóvanazúgy"
+
+
+@bp.route('/api/categorize_row', methods=['POST'])
+def api_categorize_row():
+    return "csöcsöm"
